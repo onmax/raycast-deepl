@@ -1,18 +1,49 @@
 {
   "name": "raycast-deepl-write",
   "title": "DeepL Write",
-  "description": "Rewrite selected text using DeepL Write API",
+  "description": "Rewrite and translate text using DeepL API",
   "icon": "extension-icon.png",
   "author": "maxi",
   "categories": ["Productivity"],
   "license": "MIT",
   "commands": [
-    { "name": "rewrite", "title": "Rewrite Text", "description": "Rewrite selected text with DeepL Write", "mode": "no-view" }
+    { "name": "rewrite", "title": "Rewrite Text", "description": "Rewrite selected text with DeepL Write", "mode": "no-view" },
+    { "name": "rewrite-options", "title": "Rewrite with Options", "description": "Rewrite text with language, style, and tone options", "mode": "view" },
+    { "name": "translate", "title": "Translate Text", "description": "Translate selected text with DeepL", "mode": "no-view" },
+    { "name": "translate-options", "title": "Translate with Options", "description": "Translate text with source/target language and formality options", "mode": "view" },
+    { "name": "glossary-list", "title": "Manage Glossaries", "description": "View and manage DeepL glossaries", "mode": "view" },
+    { "name": "glossary-create", "title": "Create Glossary", "description": "Create a new DeepL glossary", "mode": "view" }
   ],
   "preferences": [
-    { "name": "apiKey", "title": "DeepL API Key", "description": "Your DeepL API key", "type": "password", "required": true }
+    { "name": "apiKey", "title": "DeepL API Key", "description": "Your DeepL API key", "type": "password", "required": true },
+    { "name": "apiType", "title": "API Type", "description": "Free or Pro DeepL API", "type": "dropdown", "default": "pro", "required": false, "data": [{ "title": "Pro", "value": "pro" }, { "title": "Free", "value": "free" }] },
+    { "name": "targetLang", "title": "Rewrite Language", "description": "Target language for rewriting", "type": "dropdown", "default": "en-US", "required": false, "data": [{ "title": "English (US)", "value": "en-US" }, { "title": "English (UK)", "value": "en-GB" }, { "title": "German", "value": "de" }, { "title": "Spanish", "value": "es" }, { "title": "French", "value": "fr" }, { "title": "Italian", "value": "it" }, { "title": "Portuguese (BR)", "value": "pt-BR" }, { "title": "Portuguese (PT)", "value": "pt-PT" }] },
+    { "name": "writingStyle", "title": "Writing Style", "description": "Writing style for rewriting", "type": "dropdown", "default": "default", "required": false, "data": [{ "title": "Default", "value": "default" }, { "title": "Academic", "value": "prefer_academic" }, { "title": "Business", "value": "prefer_business" }, { "title": "Casual", "value": "prefer_casual" }, { "title": "Simple", "value": "prefer_simple" }] },
+    { "name": "tone", "title": "Tone", "description": "Tone for rewriting", "type": "dropdown", "default": "default", "required": false, "data": [{ "title": "Default", "value": "default" }, { "title": "Confident", "value": "prefer_confident" }, { "title": "Diplomatic", "value": "prefer_diplomatic" }, { "title": "Enthusiastic", "value": "prefer_enthusiastic" }, { "title": "Friendly", "value": "prefer_friendly" }] },
+    { "name": "translateTargetLang", "title": "Translate Target Language", "description": "Target language for translation", "type": "dropdown", "default": "EN-US", "required": false, "data": [{ "title": "Bulgarian", "value": "BG" }, { "title": "Czech", "value": "CS" }, { "title": "Danish", "value": "DA" }, { "title": "German", "value": "DE" }, { "title": "Greek", "value": "EL" }, { "title": "English (UK)", "value": "EN-GB" }, { "title": "English (US)", "value": "EN-US" }, { "title": "Spanish", "value": "ES" }, { "title": "Estonian", "value": "ET" }, { "title": "Finnish", "value": "FI" }, { "title": "French", "value": "FR" }, { "title": "Hungarian", "value": "HU" }, { "title": "Indonesian", "value": "ID" }, { "title": "Italian", "value": "IT" }, { "title": "Japanese", "value": "JA" }, { "title": "Korean", "value": "KO" }, { "title": "Lithuanian", "value": "LT" }, { "title": "Latvian", "value": "LV" }, { "title": "Norwegian", "value": "NB" }, { "title": "Dutch", "value": "NL" }, { "title": "Polish", "value": "PL" }, { "title": "Portuguese (BR)", "value": "PT-BR" }, { "title": "Portuguese (PT)", "value": "PT-PT" }, { "title": "Romanian", "value": "RO" }, { "title": "Russian", "value": "RU" }, { "title": "Slovak", "value": "SK" }, { "title": "Slovenian", "value": "SL" }, { "title": "Swedish", "value": "SV" }, { "title": "Turkish", "value": "TR" }, { "title": "Ukrainian", "value": "UK" }, { "title": "Chinese (Simplified)", "value": "ZH-HANS" }, { "title": "Chinese (Traditional)", "value": "ZH-HANT" }] },
+    { "name": "formality", "title": "Formality", "description": "Formality level for translation", "type": "dropdown", "default": "default", "required": false, "data": [{ "title": "Default", "value": "default" }, { "title": "More Formal", "value": "prefer_more" }, { "title": "Less Formal", "value": "prefer_less" }] },
+    { "name": "defaultModelType", "title": "Translation Model", "description": "Model type for translation quality/speed", "type": "dropdown", "default": "", "required": false, "data": [{ "title": "Default", "value": "" }, { "title": "Quality Optimized", "value": "quality_optimized" }, { "title": "Latency Optimized", "value": "latency_optimized" }, { "title": "Prefer Quality", "value": "prefer_quality_optimized" }] },
+    { "name": "preserveFormatting", "title": "Preserve Formatting", "description": "Preserve formatting in translations", "type": "checkbox", "default": false, "required": false, "label": "Preserve Formatting" },
+    { "name": "showBilledCharacters", "title": "Show Billed Characters", "description": "Show character count in toast", "type": "checkbox", "default": true, "required": false, "label": "Show Billed Characters" }
   ],
-  "dependencies": { "@raycast/api": "^1.93.2" },
-  "devDependencies": { "@raycast/eslint-config": "^1.0.11", "@types/node": "22.13.0", "@types/react": "19.0.8", "eslint": "^8.57.0", "prettier": "^3.4.2", "typescript": "^5.7.3" },
-  "scripts": { "build": "ray build", "dev": "ray develop", "fix-lint": "ray lint --fix", "lint": "ray lint", "prepublishOnly": "echo \"\\n\\nIt seems like you are trying to publish the Raycast extension to npm.\\n\\nIf you did intend to publish it to npm, remove the \\`prepublishOnly\\` script and rerun \\`npm publish\\` again.\\nIf you wanted to publish it to the Raycast Store instead, use \\`npm run publish\\` instead.\\n\\n\" && exit 1", "publish": "npx @raycast/api@latest publish" }
+  "dependencies": {
+    "@raycast/api": "^1.93.2",
+    "@raycast/utils": "^2.2.2"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.11",
+    "@types/node": "22.13.0",
+    "@types/react": "19.0.8",
+    "eslint": "^8.57.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3"
+  },
+  "scripts": {
+    "build": "ray build",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "prepublishOnly": "echo \"\\n\\nIt seems like you are trying to publish the Raycast extension to npm.\\n\\nIf you did intend to publish it to npm, remove the \\`prepublishOnly\\` script and rerun \\`npm publish\\` again.\\nIf you wanted to publish it to the Raycast Store instead, use \\`npm run publish\\` instead.\\n\\n\" && exit 1",
+    "publish": "npx @raycast/api@latest publish"
+  }
 }

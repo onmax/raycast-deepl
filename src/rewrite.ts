@@ -1,44 +1,47 @@
-import { Clipboard, getPreferenceValues, getSelectedText, showToast, Toast } from "@raycast/api"
+import { Clipboard, getSelectedText, showHUD } from "@raycast/api";
+import { showFailureToast } from "@raycast/utils";
+import { DeepLError, getPrefs, rewrite, RewriteOptions } from "./deepl";
 
-interface Preferences { apiKey: string }
+export async function rewriteText(
+  text: string,
+  options?: Partial<RewriteOptions>,
+) {
+  const prefs = getPrefs();
+  const targetLang = options?.targetLang ?? prefs.targetLang;
+  const writingStyle =
+    options?.writingStyle ??
+    (prefs.writingStyle as RewriteOptions["writingStyle"]);
+  const tone = options?.tone ?? (prefs.tone as RewriteOptions["tone"]);
+
+  return rewrite(text, { targetLang, writingStyle, tone });
+}
 
 export default async function Command() {
-  const { apiKey } = getPreferenceValues<Preferences>()
-
-  let text: string
-  let isSelected = false
+  let text: string;
+  let isSelected = false;
   try {
-    text = await getSelectedText()
-    isSelected = true
+    text = await getSelectedText();
+    isSelected = true;
   } catch {
-    text = (await Clipboard.readText()) ?? ""
+    text = (await Clipboard.readText()) ?? "";
   }
 
   if (!text.trim()) {
-    await showToast({ style: Toast.Style.Failure, title: "No text found" })
-    return
+    await showFailureToast("No text found");
+    return;
   }
 
   try {
-    const res = await fetch("https://api.deepl.com/v2/write/rephrase", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `DeepL-Auth-Key ${apiKey}` },
-      body: JSON.stringify({ text: [text], target_lang: "EN" }),
-    })
-
-    if (!res.ok) throw new Error(`DeepL API error: ${res.status}`)
-
-    const data = (await res.json()) as { improvements: { text: string }[] }
-    const result = data.improvements[0].text
-
+    const result = await rewriteText(text);
     if (isSelected) {
-      await Clipboard.paste(result)
-      await showToast({ style: Toast.Style.Success, title: "Text replaced" })
+      await Clipboard.paste(result);
+      await showHUD("Text replaced");
     } else {
-      await Clipboard.copy(result)
-      await showToast({ style: Toast.Style.Success, title: "Copied to clipboard" })
+      await Clipboard.copy(result);
+      await showHUD("Copied to clipboard");
     }
   } catch (e) {
-    await showToast({ style: Toast.Style.Failure, title: "Failed to rewrite", message: String(e) })
+    const title = e instanceof DeepLError ? e.message : "Failed to rewrite";
+    await showFailureToast(e, { title });
   }
 }
