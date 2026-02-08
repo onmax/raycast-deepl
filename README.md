@@ -1,4 +1,7 @@
-# DeepL for Raycast
+<p align="center">
+  <img src="assets/deepl-logo.png" width="128" height="128" alt="logo">
+</p>
+<h1 align="center">DeepL for Raycast</h1>
 
 Rewrite and translate text using the [DeepL API](https://developers.deepl.com/docs/api-reference).
 
